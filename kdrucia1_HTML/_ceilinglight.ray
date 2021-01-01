@@ -1,0 +1,6 @@
+#camera  0 0 0  0 0 0  0 0 0  0
+
+#texture wall.jpg
+#material  1 1 1  0.1 0.1 0.1  0.9 0.9 0.9  1 1 1 128  0.9 0.9 0.9  1.05  0  !door!
+
+#shape_sphere  0  0 0 0  1

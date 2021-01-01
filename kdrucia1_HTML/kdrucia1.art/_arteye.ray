@@ -1,0 +1,10 @@
+#camera  0 0 0  0 0 0  0 0 0  0
+#light_dir  0.5 0.5 0.5  1 1 1  1 1 1  -0.707107 -0.707107 0
+
+#ray_file _arteye1.ray
+#ray_file _arteye2.ray
+
+#ray_file_instance 0
+#ray_file_instance 1
+
+

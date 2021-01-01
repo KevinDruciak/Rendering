@@ -1,0 +1,130 @@
+<h2 id="assignment-3-opengl-rendering">Assignment 3: OpenGL Rendering</h2>
+<h6 id="kevin-druciak">Kevin Druciak</h6>
+<p>kdrucia1</p>
+<p>Late Days: 0</p>
+<p>MSVC / Visual Studio Community 2017 /  Windows 10</p>
+<h4 id="summary-">Summary:</h4>
+<p>I unfortunately only had time to implement the basic features for this assignment. Ideally, I would have liked to implement acceleration and Phong shading. Gouraud shading leaves a lot to be desired. Although I am able to render different shapes rather nicely, the lack of nicer aspects of the ray tracer leaves a lot of the images looking rather flat. </p>
+<h4 id="implemented-features-">Implemented Features:</h4>
+<ul>
+<li>all lights</li>
+<li>all camera operations</li>
+<li>all shapes</li>
+<li>affine transformations</li>
+<li>textures for sphere, triangle, box,  torus</li>
+<li>interactable objects</li>
+<li>scene ray tracing</li>
+</ul>
+<h4 id="unimplemented-features-">Unimplemented Features:</h4>
+<ul>
+<li>anti-aliasing</li>
+<li>buffer object rendering</li>
+<li>glsl lighting</li>
+<li>transparency, reflections, shadows, robotic arm</li>
+</ul>
+<h4 id="modifications-to-original-code-base-">Modifications to original code base:</h4>
+<ul>
+<li>box.h<ul>
+<li>pre-compute texture, index, vertex, and normal coordinates</li>
+</ul>
+</li>
+<li>light.h + child classes<ul>
+<li>added virtual method &quot;drawOpenGLoff&quot; to draw ambient lighting when lights are turned off</li>
+</ul>
+</li>
+<li>scene.cpp<ul>
+<li>modified &quot;Scene::drawOpenGL&quot; to draw off/on lights</li>
+</ul>
+</li>
+<li>scene.h<ul>
+<li>added &quot;lightsOn&quot; field to keep track of whether lights are on/off</li>
+</ul>
+</li>
+<li>scene.todo.cpp<ul>
+<li>modified &quot;getColor&quot; header to draw lights</li>
+</ul>
+</li>
+<li>shape.h + child classes<ul>
+<li>added virtual method &quot;implemented&quot; to track if a shape is able to be raytraced (it has an intersect implementation)</li>
+</ul>
+</li>
+<li>window.cpp + window.h<ul>
+<li>declare static variable lightsON to track light status</li>
+<li>declare static variable SceneName to track the name of the scene .ray file</li>
+<li>Window::MouseFunction<ul>
+<li>I implemented the interactable object functionality here. I first get a ray from the camera and intersect the scene. I check if the object I intersect with has a material with a string identifier such as &quot;button&quot; or door. For the button, I simply invert the global light tracking variable which in turn turns off the lights. Opening and closing the door was a bit trickier than I had expected so I opted for the naïve solution. If my ray intersects with the door, I first check the name of the current scene ray file. I then create a new scene from a brand new ray file with the door opened/closed and render it. Naturally, this is a pretty slow function, but it works for now.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h4 id="ray-shapelist-drawopengl">Ray::ShapeList::drawOpenGL</h4>
+<ul>
+<li>calls &quot;drawOpenGL&quot; for all shapes in the list</li>
+</ul>
+<h4 id="ray-trianglelist-drawopengl">Ray::TriangleList::drawOpenGL</h4>
+<ul>
+<li>calls &quot;drawOpenGL&quot; on the shapelist and sets material</li>
+</ul>
+<h4 id="ray-material-drawopengl">Ray::Material::drawOpenGL</h4>
+<ul>
+<li>calls &quot;initOpenGL&quot; for texture. I have to generate a new texture on every draw call. I&#39;m sure there&#39;s a better way to do this. I also check the global variable &quot;Window::lightsON&quot; when generating the emissive property in order to simulating a light turning on and off.</li>
+</ul>
+<h4 id="ray-light-drawopengl-drawopengloff">Ray::Light::drawOpenGL/drawOpenGLoff</h4>
+<ul>
+<li>similar to assignment 2 for &quot;drawOpenGL&quot;. In &quot;drawOpenGLoff&quot; I simulate the light being off by setting all of its properties to 0 except for ambient.</li>
+</ul>
+<h4 id="ray-affineshape-drawopengl">Ray::AffineShape::drawOpenGL</h4>
+<ul>
+<li>I couldn&#39;t find a way to pass the type Matrix4D from &quot;getMatrix&quot; into the &quot;glMultMatrixf&quot; call so I had to copy it into an array</li>
+</ul>
+<h4 id="ray-triangle-drawopengl">Ray::Triangle::drawOpenGL</h4>
+<ul>
+<li>used Plane for normals, and vertices for texture/position</li>
+</ul>
+<h4 id="ray-texture-initopengl">Ray::Texture::initOpenGL</h4>
+<ul>
+<li>simply texture init</li>
+</ul>
+<h4 id="ray-box-drawopengl">Ray::Box::drawOpenGL</h4>
+<ul>
+<li>I first precompute the textures/indices/normals/vertices in the &quot;initOpenGL&quot; method and iterate iterate over the faces of the box, drawing them with GL_QUADS.</li>
+</ul>
+<p><img src="kdrucia1_HTML/box.bmp" alt="0"></p>
+<h4 id="ray-cylinder-drawopengl">Ray::Cylinder::drawOpenGL</h4>
+<ul>
+<li>draw body with parametric equations for a cylinder using TRIANGLE_STRIP, then endcaps using GL_TRIANGLE_FAN</li>
+</ul>
+<p><img src="kdrucia1_HTML/cylinder.bmp" alt="1"></p>
+<h4 id="ray-cone-drawopengl">Ray::Cone::drawOpenGL</h4>
+<ul>
+<li>I figured that the best way to draw a roof for my room scene was to use an OpenGLTessellationComplexity of 4 (which is a rectangular pyramid) so I check if the material that I am rendering a roof first and set the OpenGLTessellationComplexity accordingly. The cone itself is a GL_TRIANGLE_FAN with the first vertex as the peak. The base is a GL_TRIANGLE_FAN circle.</li>
+</ul>
+<p><img src="kdrucia1_HTML/cone.bmp" alt="2"></p>
+<h4 id="ray-torus-drawopengl">Ray::Torus::drawOpenGL</h4>
+<ul>
+<li>The torus vertices were generated from a torus&#39;s parametric equations. I was having trouble finding normals to the torus and eventually consulted the following resource: <a href="http://www.cosinekitty.com/raytrace/chapter13_torus.html">http://www.cosinekitty.com/raytrace/chapter13_torus.html</a>. </li>
+</ul>
+<p><img src="kdrucia1_HTML/torus.bmp" alt="3"></p>
+<p>Fun fact: I couldn&#39;t find a texture that mapped properly onto the torus, so I made my own donut texture in microsoft paint!</p>
+<h4 id="ray-sphere-drawopengl">Ray::Sphere::drawOpenGL</h4>
+<ul>
+<li>Parametric equations for vertices. I render four vertices at a time in order to be able to create tex coordinates for GL_QUAD_STRIP.</li>
+</ul>
+<p><img src="kdrucia1_HTML/chessboard.bmp" alt="4"></p>
+<p>Here is the OpenGL rendering version of my assignment 2 art submission. It is compared to the ray traced version below.</p>
+<p><img src="kdrucia1_HTML/chessboardraytraced.bmp" alt="5"></p>
+<h4 id="room-">Room:</h4>
+<p><img src="kdrucia1_HTML/room1.bmp" alt="6"></p>
+<p><img src="kdrucia1_HTML/room2.bmp" alt="7"></p>
+<p><img src="kdrucia1_HTML/room3.bmp" alt="8"></p>
+<p><img src="kdrucia1_HTML/room4.bmp" alt="9"></p>
+<p><img src="kdrucia1_HTML/room5.bmp" alt="10"></p>
+<p>Here, we can see, in order, closed door, open door, lights on, lights off, and the flashlight.</p>
+<h4 id="ray-traced-scene-">Ray Traced Scene:</h4>
+<p><img src="kdrucia1_HTML/davidopengl.bmp" alt="11"></p>
+<p><img src="kdrucia1_HTML/david1.bmp" alt="12"></p>
+<p>The first image is the OpenGL rendering of david.ray. The second is the ray-traced scene from the same perspective of the current OpenGL context. </p>
+<h4 id="art-submission-">Art Submission:</h4>
+<p><img src="kdrucia1_HTML/kdrucia1.art/kdrucia1.art.3.bmp" alt="13"></p>
+<p>I submit this image and its ray file, &quot;kdrucia1.art.3.ray&quot; as my art submission. </p>
